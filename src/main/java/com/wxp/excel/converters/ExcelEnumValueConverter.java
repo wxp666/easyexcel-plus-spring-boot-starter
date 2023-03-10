@@ -5,7 +5,7 @@ import com.alibaba.excel.enums.CellDataTypeEnum;
 import com.alibaba.excel.metadata.GlobalConfiguration;
 import com.alibaba.excel.metadata.data.WriteCellData;
 import com.alibaba.excel.metadata.property.ExcelContentProperty;
-import com.wxp.excel.annotation.EnumValue;
+import com.wxp.excel.annotation.ExcelEnumValue;
 
 import java.lang.reflect.Method;
 
@@ -14,7 +14,7 @@ import java.lang.reflect.Method;
  * @date 2023/3/7
  * @apiNote
  */
-public class EnumValueConverter implements Converter<Object> {
+public class ExcelEnumValueConverter implements Converter<Object> {
 
     @Override
     public Class<?> supportJavaTypeKey() {
@@ -28,7 +28,7 @@ public class EnumValueConverter implements Converter<Object> {
 
     @Override
     public WriteCellData<?> convertToExcelData(Object value, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) throws Exception {
-        EnumValue enumValue = contentProperty.getField().getAnnotation(EnumValue.class);
+        ExcelEnumValue enumValue = contentProperty.getField().getAnnotation(ExcelEnumValue.class);
         Class<?> enumClass = enumValue.value();
         Object enumConstant = enumClass.getEnumConstants()[0];
         Method method = enumClass.getDeclaredMethod("getByCode",Object.class);
