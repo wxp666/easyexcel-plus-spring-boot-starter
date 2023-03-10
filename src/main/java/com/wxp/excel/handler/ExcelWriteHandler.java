@@ -1,6 +1,7 @@
 package com.wxp.excel.handler;
 
 import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.wxp.excel.annotation.ResponseExcel;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +33,8 @@ public class ExcelWriteHandler {
         response.setContentType(contentType);
         response.setCharacterEncoding("utf-8");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename*=utf-8''" + fileName);
-        EasyExcelFactory.write(response.getOutputStream(), returnValue.get(0).getClass()).excelType(responseExcel.suffix()).sheet(responseExcel.sheetName()).doWrite(returnValue);
+        EasyExcelFactory.write(response.getOutputStream(), returnValue.get(0).getClass()).excelType(responseExcel.suffix()).sheet(responseExcel.sheetName())
+                .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                .doWrite(returnValue);
     }
 }
