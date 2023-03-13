@@ -1,9 +1,17 @@
 package com.wxp.excel.handler;
 
 import com.alibaba.excel.EasyExcelFactory;
-import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
+import com.alibaba.excel.util.ListUtils;
+import com.alibaba.excel.write.metadata.style.WriteCellStyle;
+import com.alibaba.excel.write.metadata.style.WriteFont;
+import com.alibaba.excel.write.style.DefaultStyle;
+import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import com.wxp.excel.annotation.ResponseExcel;
+import com.wxp.excel.strategy.AutoColumnWidthStrategy;
 import lombok.SneakyThrows;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
@@ -34,7 +42,30 @@ public class ExcelWriteHandler {
         response.setCharacterEncoding("utf-8");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename*=utf-8''" + fileName);
         EasyExcelFactory.write(response.getOutputStream(), returnValue.get(0).getClass()).excelType(responseExcel.suffix()).sheet(responseExcel.sheetName())
-                .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
+                .registerWriteHandler(new AutoColumnWidthStrategy()).registerWriteHandler(getStyleStrategy())
                 .doWrite(returnValue);
+    }
+
+    private HorizontalCellStyleStrategy getStyleStrategy() {
+        //内容样式
+        WriteCellStyle contentWriteCellStyle = new WriteCellStyle();
+        //垂直居中,水平居中
+        contentWriteCellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        contentWriteCellStyle.setHorizontalAlignment(HorizontalAlignment.CENTER);
+        contentWriteCellStyle.setBorderLeft(BorderStyle.THIN);
+        contentWriteCellStyle.setBorderTop(BorderStyle.THIN);
+        contentWriteCellStyle.setBorderRight(BorderStyle.THIN);
+        contentWriteCellStyle.setBorderBottom(BorderStyle.THIN);
+        //设置 自动换行
+        contentWriteCellStyle.setWrapped(true);
+        // 字体策略
+        WriteFont contentWriteFont = new WriteFont();
+        // 字体大小
+        contentWriteFont.setFontHeightInPoints((short) 12);
+        contentWriteCellStyle.setWriteFont(contentWriteFont);
+        // 使用默认样式策略，头样式使用easyexcel默认
+        DefaultStyle defaultStyle = new DefaultStyle();
+        defaultStyle.setContentWriteCellStyleList(ListUtils.newArrayList(contentWriteCellStyle));
+        return defaultStyle;
     }
 }
