@@ -12,5 +12,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ExcelEnumValue {
 
-    Class<?> value();
+    Class<? extends Enum<?>> value();
 }
