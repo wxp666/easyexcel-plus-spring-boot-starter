@@ -32,5 +32,22 @@ public @interface ResponseExcel {
      */
     String sheetName() default "";
 
+    /**
+     * 是否合并
+     * @return 是否合并列
+     */
+    boolean isMerge() default false;
+
+    /**
+     * 要合并的列
+     * @return 合并列数组
+     */
+    int[] mergeColumn() default {};
+
+    /**
+     * 表头行数
+     * 合并时需计算，不指定默认-1 则取ExcelProperty注解value的长度
+     */
+    int headNumber() default -1;
 
 }

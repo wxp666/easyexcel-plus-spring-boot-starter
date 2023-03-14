@@ -6,6 +6,7 @@ import com.alibaba.excel.metadata.GlobalConfiguration;
 import com.alibaba.excel.metadata.data.WriteCellData;
 import com.alibaba.excel.metadata.property.ExcelContentProperty;
 import com.wxp.excel.annotation.ExcelEnumValue;
+import com.wxp.excel.exception.ExcelPlusException;
 
 import java.lang.reflect.Method;
 
@@ -27,12 +28,22 @@ public class ExcelEnumValueConverter implements Converter<Object> {
     }
 
     @Override
-    public WriteCellData<?> convertToExcelData(Object value, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) throws Exception {
+    public WriteCellData<?> convertToExcelData(Object value, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
         ExcelEnumValue enumValue = contentProperty.getField().getAnnotation(ExcelEnumValue.class);
         Class<?> enumClass = enumValue.value();
         Object enumConstant = enumClass.getEnumConstants()[0];
-        Method method = enumClass.getDeclaredMethod("getByCode",Object.class);
-        Object invoke = method.invoke(enumConstant, value);
+        Method method;
+        try {
+            method = enumClass.getDeclaredMethod("getByCode",Object.class);
+        } catch (NoSuchMethodException e) {
+            throw new ExcelPlusException("enum convert fail,getByCode方法未找到",e);
+        }
+        Object invoke;
+        try {
+            invoke = method.invoke(enumConstant, value);
+        } catch (Exception e) {
+            throw new ExcelPlusException("enum convert fail,getByCode方法调用失败",e);
+        }
         return new WriteCellData<>(invoke.toString());
     }
 }

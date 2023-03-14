@@ -48,26 +48,26 @@ public class AutoColumnWidthStrategy extends AbstractColumnWidthStyleStrategy {
     private Integer dataLength(List<WriteCellData<?>> cellDataList, Cell cell, Boolean isHead) {
         if (isHead) {
             return cell.getStringCellValue().getBytes(StandardCharsets.UTF_8).length;
+        }
+        WriteCellData<?> cellData = cellDataList.get(0);
+        CellDataTypeEnum type = cellData.getType();
+        if (type == null) {
+            return -1;
         } else {
-            WriteCellData<?> cellData = cellDataList.get(0);
-            CellDataTypeEnum type = cellData.getType();
-            if (type == null) {
-                return -1;
-            } else {
-                switch (type) {
-                    case STRING:
-                        return cellData.getStringValue().getBytes(StandardCharsets.UTF_8).length + 2;
-                    case BOOLEAN:
-                        return cellData.getBooleanValue().toString().getBytes(StandardCharsets.UTF_8).length;
-                    case NUMBER:
-                        return cellData.getNumberValue().toString().getBytes(StandardCharsets.UTF_8).length;
-                    case DATE:
-                        return cellData.getDateValue().toString().getBytes(StandardCharsets.UTF_8).length + 2;
-                    default:
-                        return -1;
-                }
+            switch (type) {
+                case STRING:
+                    return cellData.getStringValue().getBytes(StandardCharsets.UTF_8).length + 2;
+                case BOOLEAN:
+                    return cellData.getBooleanValue().toString().getBytes(StandardCharsets.UTF_8).length;
+                case NUMBER:
+                    return cellData.getNumberValue().toString().getBytes(StandardCharsets.UTF_8).length;
+                case DATE:
+                    return cellData.getDateValue().toString().getBytes(StandardCharsets.UTF_8).length + 2;
+                default:
+                    return -1;
             }
         }
+
     }
 
 }
