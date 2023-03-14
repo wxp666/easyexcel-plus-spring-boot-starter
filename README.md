@@ -74,7 +74,7 @@ public List<FamilyMemberDTO> exportTest(){
 
 ### 	1.3 导出效果
 
-![image-20230313144014387](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230313144014387.png)
+![image-20230313144014387](doc/image-20230313144014387.png)
 
 
 ------
@@ -154,7 +154,7 @@ public List<FamilyMemberDTO> exportTest(){
 ```
 ### 	2.4 导出效果
 
-![image-20230313145615502](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230313145615502.png)
+![image-20230313145615502](doc/image-20230313145615502.png)
 
 
 
@@ -223,7 +223,7 @@ public List<FamilyMemberMergeDTO> exportMergeTest() {
 
 ### 3.3 导出效果
 
-![image-20230314104530448](C:\Users\Administrator\AppData\Roaming\Typora\typora-user-images\image-20230314104530448.png)
+![image-20230314104530448](doc/image-20230314104530448.png)
 
 ## **其它注意事项**
 
