@@ -25,10 +25,12 @@ import java.util.Map;
             return;
         }
         Integer endrow = map.get(context.getRowIndex());
-        //编列合并的列，合并行
-        for (int col : cols) {
-            // CellRangeAddress(起始行,结束行,起始列,结束列)
-            context.getWriteSheetHolder().getSheet().addMergedRegionUnsafe(new CellRangeAddress(context.getRowIndex(), endrow, col, col));
+        if (!context.getRowIndex().equals(endrow)) {
+            //编列合并的列，合并行
+            for (int col : cols) {
+                // CellRangeAddress(起始行,结束行,起始列,结束列)
+                context.getWriteSheetHolder().getSheet().addMergedRegionUnsafe(new CellRangeAddress(context.getRowIndex(), endrow, col, col));
+            }
         }
     }
 }
