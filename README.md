@@ -225,6 +225,105 @@ public List<FamilyMemberMergeDTO> exportMergeTest() {
 
 ![image-20230314104530448](doc/image-20230314104530448.png)
 
+## 4、导入excel
+### 4.1 模板对象
+```java
+@Data
+@ExcelIgnoreUnannotated
+public class FamilyMemberDTO{
+
+    @ExcelProperty("户主")
+    private String hzmc;
+
+    @ExcelProperty("成员姓名")
+    private String cyxm;
+
+    @ExcelProperty(value = "成员性别", converter = ExcelEnumValueConverter.class)
+    @ExcelEnumValue(SexEunm.class)
+    private Integer cyxb;
+
+    @ExcelProperty("证件号码")
+    private String cyzjhm;
+
+    @ExcelProperty("家庭关系")
+    private String yhzgx;
+
+    @ExcelProperty("电话")
+    private String lxdh;
+
+    @ExcelProperty("时间")
+    private LocalDateTime time;
+
+    @ExcelProperty("时间2")
+    private Date date;
+
+
+}
+```
+### 4.2 如有字典值转换需要 创建enum类实现ExcelEnum两个方法
+```java
+@AllArgsConstructor
+@Getter
+public enum SexEunm implements ExcelEnum<Integer> {
+
+    /**
+     * 男
+     */
+    MAN(1, "男"),
+
+    /**
+     * 女
+     */
+    WOMAN(2, "女");
+
+    Integer code;
+
+    String desc;
+
+    @Override
+    public String getByCode(Integer code) {
+        for (SexEunm value : SexEunm.values()) {
+            if (value.getCode().equals(code)) {
+                return value.getDesc();
+            }
+        }
+        return code.toString();
+    }
+
+    @Override
+    public Integer getCode(String desc) {
+        for (SexEunm value : SexEunm.values()) {
+            if (value.getDesc().equals(desc)) {
+                return value.getCode();
+            }
+        }
+        return null;
+    }
+
+}
+
+```
+### 4.3 controller
+RequestExcel 注解
+fileName 属性为前端传参文件属性名称
+
+readListener 读excel监听器，非必填，有默认读监听器
+
+headNumber excel头的行数，非必填，有默认值   
+    不指定默认-1
+    则取一个ExcelProperty注解 value有值时 取value的长度
+    如value没有数值则 head 取值为 1
+```java
+@PostMapping("/import")
+    public List<FamilyMemberDTO> importData(@RequestExcel(fileName = "file") List<FamilyMemberDTO> list) {
+        return list;
+    }
+```
+### 4.4导入的excel
+![image_20231225102110](doc/image_20231225102110.png)
+### 4.5 导入结果
+![image_20231225102417.png](doc/image_20231225102417.png)
+
 ## **其它注意事项**
 
 - 如果导出报错，请查看poi依赖版本是否冲突，并解决
