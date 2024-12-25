@@ -47,7 +47,7 @@ public class ExcelWriteHandler {
                 .orElse("application/vnd.ms-excel");
         response.setContentType(contentType);
         response.setCharacterEncoding("utf-8");
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename*=utf-8''" + fileName);
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName);
         ExcelWriterSheetBuilder excelWriterSheetBuilder = EasyExcelFactory.write(response.getOutputStream(), returnValue.get(0).getClass()).excelType(responseExcel.suffix()).sheet(responseExcel.sheetName())
                 .registerWriteHandler(new AutoColumnWidthStrategy()).registerWriteHandler(getStyleStrategy());
         if (responseExcel.isMerge()) {
