@@ -31,6 +31,9 @@ public class ExcelEnumValueConverter implements Converter<Object> {
     @Override
     public WriteCellData<?> convertToExcelData(Object value, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
         ExcelEnumValue enumValue = contentProperty.getField().getAnnotation(ExcelEnumValue.class);
+        if (enumValue == null){
+            throw new ExcelPlusException("enum转换失败,未找到 ExcelEnumValue 注解");
+        }
         Class<?> enumClass = enumValue.value();
         Object enumConstant = enumClass.getEnumConstants()[0];
         Method method;
@@ -49,7 +52,7 @@ public class ExcelEnumValueConverter implements Converter<Object> {
     }
 
     @Override
-    public Object convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) throws Exception {
+    public Object convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty, GlobalConfiguration globalConfiguration) {
         String stringValue = cellData.getStringValue();
         ExcelEnumValue enumValue = contentProperty.getField().getAnnotation(ExcelEnumValue.class);
         Class<?> enumClass = enumValue.value();

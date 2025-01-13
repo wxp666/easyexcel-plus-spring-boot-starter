@@ -11,6 +11,8 @@
 - excel样式目前设置了、水平、垂直居中，自动换行，自适应列宽（但有些不是很精确）,如列宽、行高达不到想要的效果可以参考easyexcel的样式注解添加到实体类上
 - 提供字典值映射的注解（导出根据enum实现字典的映射导出）
 - 提供合并单元格导出功能
+- 1.2 增加导入excel解析功能
+- 1.3 增加根据字典表查询字典映射的功能
 - 持续更新中
 
 ## 使用说明
@@ -81,7 +83,9 @@ public List<FamilyMemberDTO> exportTest(){
 
 ## 2、带有字典映射的导出
 
-### 	2.1 创建字典enum并实现ExcelEnum
+### 	2.1 字典
+#### 2.1.1 枚举类映射
+- 创建字典enum并实现ExcelEnum
 
 ​			实现ExcelEnum接口提供泛型，泛型为实体类字段的类型，一般为Integer或者String，并实现 getByCode方法 提供根据 字典值返回字典描述
 
@@ -116,8 +120,30 @@ public enum SexEunm implements ExcelEnum<Integer> {
 
 }
 ```
+#### 2.1.2 字典表映射
+- 创建service继承 ExcelDictService 并实现 getValueByCode方法
+- 可以在原有已写的 mybatisPlus 的字典service后 继承ExcelDictService
+- 字典表实体类可按照自己项目结构实现，方法返回一个Map<String,String> key为字典值 value为字典描述
+- 实现方法返回可根据实际需求添加缓存
+```java
+public interface DictService extends IService<Dict>, ExcelDictService{
+    
+}
+```
+```java
+@Service
+public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
+    @Override
+    public Map<String, String> getValueByCode(String dictCode) {
+        List<Dict> dictList = baseMapper.selectList(Wrappers.lambdaQuery(Dict.class).eq(Dict::getDictCode, dictCode));
+        return dictList.stream().collect(Collectors.toMap(Dict::getValuee, Dict::getName));
+    }
+}
+
+```
 
 ### 2.2 模板对象
+#### 2.2.1 枚举类映射
 
 ​			在需要字典映射的字段@ExcelProperty注解添加 converter = ExcelEnumValueConverter.class 属性
 
@@ -136,6 +162,25 @@ public class FamilyMemberDTO{
 
     @ExcelProperty(value = "成员性别", converter = ExcelEnumValueConverter.class)
     @ExcelEnumValue(SexEunm.class)
+    private Integer cyxb;
+ 
+    ......
+}
+```
+#### 2.2.2 字典表映射
+```java
+@Data
+@ExcelIgnoreUnannotated
+public class FamilyMemberDTO{
+
+    @ExcelProperty("户主")
+    private String hzmc;
+
+    @ExcelProperty("成员姓名")
+    private String cyxm;
+
+    @ExcelProperty(value = "成员性别", converter = ExcelDictValueConverter.class)
+    @ExcelDictValue("f_sex")
     private Integer cyxb;
  
     ......
