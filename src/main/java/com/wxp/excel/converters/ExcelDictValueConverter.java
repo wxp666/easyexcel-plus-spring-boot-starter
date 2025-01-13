@@ -47,10 +47,6 @@ public class ExcelDictValueConverter implements Converter<Object> {
         Map<String, String> dictMap = getDictMap(contentProperty);
         //根据dictMap的value值获取对应的key值
         Class<?> type = contentProperty.getField().getType();
-        // 将string类型 转换为 type的类型
-        if (type == String.class) {
-            return stringValue;
-        }
         for (Map.Entry<String, String> entry : dictMap.entrySet()) {
             if (entry.getValue().equals(stringValue)) {
                 return covertStringToFieldType(entry.getKey(), type);
