@@ -145,9 +145,8 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
 ### 2.2 模板对象
 #### 2.2.1 枚举类映射
 
-​			在需要字典映射的字段@ExcelProperty注解添加 converter = ExcelEnumValueConverter.class 属性
-
-​			并标注 @ExcelEnumValue(SexEunm.class)注解 value值为enum的class对象
+- 在需要字典映射的字段@ExcelProperty注解添加 converter = ExcelEnumValueConverter.class 属性
+- 标注 @ExcelEnumValue(SexEunm.class)注解 value值为enum的class对象
 
 ```java
 @Data
@@ -168,6 +167,9 @@ public class FamilyMemberDTO{
 }
 ```
 #### 2.2.2 字典表映射
+- 在需要字典映射的字段@ExcelProperty注解添加 converter = ExcelDictValueConverter.class 属性
+- 标注 @ExcelDictValue(“f_sex”)注解 value值为 字典标识
+@Data
 ```java
 @Data
 @ExcelIgnoreUnannotated
