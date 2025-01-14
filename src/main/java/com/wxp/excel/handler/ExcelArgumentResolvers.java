@@ -10,10 +10,7 @@ import com.wxp.excel.listener.ListReadListener;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.ResolvableType;
-import org.springframework.ui.ModelMap;
 import org.springframework.util.Assert;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -22,10 +19,16 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartRequest;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author wxp
@@ -71,11 +74,11 @@ public class ExcelArgumentResolvers implements HandlerMethodArgumentResolver {
         // head行数
         int headNumber = requestExcel.headNumber();
         if (requestExcel.headNumber() == -1) {
-                Field excelPropertyField = Arrays.stream(excelModelClass.getDeclaredFields()).filter(field -> field.getAnnotation(ExcelProperty.class) != null)
-                        .findFirst().orElseThrow(() -> new ExcelPlusException("excel上传模板类未找到ExcelProperty注解字段"));
-                ExcelProperty excelProperty = excelPropertyField.getAnnotation(ExcelProperty.class);
-                String[] value = excelProperty.value();
-                headNumber = value.length == 0 ? 1 : value.length;
+            Field excelPropertyField = Arrays.stream(excelModelClass.getDeclaredFields()).filter(field -> field.getAnnotation(ExcelProperty.class) != null)
+                    .findFirst().orElseThrow(() -> new ExcelPlusException("excel上传模板类未找到ExcelProperty注解字段"));
+            ExcelProperty excelProperty = excelPropertyField.getAnnotation(ExcelProperty.class);
+            String[] value = excelProperty.value();
+            headNumber = value.length == 0 ? 1 : value.length;
         }
 
         EasyExcel.read(inputStream, excelModelClass, readListener)
@@ -84,7 +87,20 @@ public class ExcelArgumentResolvers implements HandlerMethodArgumentResolver {
                 .sheet(0)
                 .headRowNumber(headNumber)
                 .doRead();
-
+        if (requestExcel.valid()) {
+            List dataList = readListener.getDataList();
+            Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+            List<String> errorMessages = new ArrayList<>();
+            for (int i = 0; i < dataList.size(); i++) {
+                Set<ConstraintViolation<Object>> validate = validator.validate(dataList.get(i));
+                if (!validate.isEmpty()) {
+                    errorMessages.add("第" + (i + 1 + headNumber) + "行数据校验失败:" + validate.stream().map(ConstraintViolation::getMessage).collect(Collectors.joining(",")));
+                }
+            }
+            if (!errorMessages.isEmpty()) {
+                throw new ExcelPlusException(String.join(";", errorMessages));
+            }
+        }
         return readListener.getDataList();
     }
 }

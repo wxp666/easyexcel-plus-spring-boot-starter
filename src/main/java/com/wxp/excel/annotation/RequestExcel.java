@@ -38,5 +38,12 @@ public @interface RequestExcel {
      */
     int headNumber() default -1;
 
+    /**
+     * 是否校验数据
+     * 校验validation相关注解
+     * @return 是否校验
+     */
+    boolean valid() default false;
+
 
 }
