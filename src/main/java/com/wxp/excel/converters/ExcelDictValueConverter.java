@@ -11,7 +11,9 @@ import com.wxp.excel.annotation.ExcelDictService;
 import com.wxp.excel.annotation.ExcelDictValue;
 import com.wxp.excel.exception.ExcelPlusException;
 import com.wxp.excel.utils.SpringUtil;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,6 +21,7 @@ import java.util.Map;
  * @date 2023/3/7
  * @apiNote
  */
+@Slf4j
 public class ExcelDictValueConverter implements Converter<Object> {
 
     @Override
@@ -36,7 +39,8 @@ public class ExcelDictValueConverter implements Converter<Object> {
         Map<String, String> dictMap = getDictMap(contentProperty);
         String result = dictMap.get(value.toString());
         if (StringUtils.isBlank(result)) {
-            throw new ExcelPlusException("dict convert fail,未找到code对应的字典值");
+            log.error("dict convert fail,未找到code对应的字典值,code:{},dictMap:{}", value, dictMap);
+            result = value.toString();
         }
         return new WriteCellData<>(result);
     }
@@ -52,7 +56,8 @@ public class ExcelDictValueConverter implements Converter<Object> {
                 return covertStringToFieldType(entry.getKey(), type);
             }
         }
-        throw new ExcelPlusException("dict convert fail,未找到value对应的字典值");
+        log.error("dict convert fail,未找到value对应的字典值,value:{},dictMap:{}", stringValue, dictMap);
+        return null;
     }
 
     private Object covertStringToFieldType(String value, Class<?> type) {
@@ -92,7 +97,8 @@ public class ExcelDictValueConverter implements Converter<Object> {
         }
         Map<String, String> dictMap = service.getValueByCode(dictValue.value());
         if (dictMap == null) {
-            throw new ExcelPlusException("dict convert fail,,未找到对应的字典");
+            log.error("dict convert fail,未找到对应的字典，字典表示：{}", dictValue.value());
+            return new HashMap<>();
         }
         return dictMap;
     }
