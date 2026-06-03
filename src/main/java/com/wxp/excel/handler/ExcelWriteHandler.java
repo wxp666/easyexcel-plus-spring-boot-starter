@@ -1,19 +1,20 @@
 package com.wxp.excel.handler;
 
-import com.alibaba.excel.EasyExcelFactory;
-import com.alibaba.excel.annotation.ExcelProperty;
-import com.alibaba.excel.util.ListUtils;
-import com.alibaba.excel.write.builder.ExcelWriterSheetBuilder;
-import com.alibaba.excel.write.metadata.style.WriteCellStyle;
-import com.alibaba.excel.write.metadata.style.WriteFont;
-import com.alibaba.excel.write.style.DefaultStyle;
-import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import com.wxp.excel.annotation.ExcelMergeColumn;
 import com.wxp.excel.annotation.ResponseExcel;
 import com.wxp.excel.exception.ExcelPlusException;
 import com.wxp.excel.strategy.AutoColumnWidthStrategy;
 import com.wxp.excel.strategy.ExcelMergeStrategy;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
+import org.apache.fesod.common.util.ListUtils;
+import org.apache.fesod.sheet.FesodSheet;
+import org.apache.fesod.sheet.annotation.ExcelProperty;
+import org.apache.fesod.sheet.write.builder.ExcelWriterSheetBuilder;
+import org.apache.fesod.sheet.write.metadata.style.WriteCellStyle;
+import org.apache.fesod.sheet.write.metadata.style.WriteFont;
+import org.apache.fesod.sheet.write.style.DefaultStyle;
+import org.apache.fesod.sheet.write.style.HorizontalCellStyleStrategy;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
@@ -21,7 +22,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.MediaTypeFactory;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
@@ -48,15 +48,15 @@ public class ExcelWriteHandler {
         response.setContentType(contentType);
         response.setCharacterEncoding("utf-8");
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName);
-        ExcelWriterSheetBuilder excelWriterSheetBuilder = EasyExcelFactory.write(response.getOutputStream(), returnValue.get(0).getClass()).excelType(responseExcel.suffix()).sheet(responseExcel.sheetName())
+        ExcelWriterSheetBuilder excelWriterBuilder = FesodSheet.write(response.getOutputStream(), returnValue.get(0).getClass()).excelType(responseExcel.suffix()).sheet(responseExcel.sheetName())
                 .registerWriteHandler(new AutoColumnWidthStrategy()).registerWriteHandler(getStyleStrategy());
         if (responseExcel.isMerge()) {
             if (responseExcel.mergeColumn().length <= 0) {
                 throw new ExcelPlusException("excel合并时，合并的列mergeColumn属性不能为空");
             }
-            excelWriterSheetBuilder.registerWriteHandler(getMergeStrategy(responseExcel, returnValue));
+            excelWriterBuilder.registerWriteHandler(getMergeStrategy(responseExcel, returnValue));
         }
-        excelWriterSheetBuilder.doWrite(returnValue);
+        excelWriterBuilder.doWrite(returnValue);
     }
 
     private <T> ExcelMergeStrategy getMergeStrategy(ResponseExcel responseExcel, List<T> returnValue) {

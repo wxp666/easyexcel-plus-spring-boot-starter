@@ -1,6 +1,7 @@
 package com.wxp.excel.annotation;
 
-import com.alibaba.excel.support.ExcelTypeEnum;
+
+import org.apache.fesod.sheet.support.ExcelTypeEnum;
 
 import java.lang.annotation.*;
 

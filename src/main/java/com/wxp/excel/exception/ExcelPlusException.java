@@ -1,6 +1,7 @@
 package com.wxp.excel.exception;
 
-import com.alibaba.excel.exception.ExcelRuntimeException;
+
+import org.apache.fesod.sheet.exception.ExcelRuntimeException;
 
 /**
  * @author wxp

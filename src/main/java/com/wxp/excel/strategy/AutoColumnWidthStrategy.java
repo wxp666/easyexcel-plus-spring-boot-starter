@@ -1,12 +1,12 @@
 package com.wxp.excel.strategy;
 
-import com.alibaba.excel.enums.CellDataTypeEnum;
-import com.alibaba.excel.metadata.Head;
-import com.alibaba.excel.metadata.data.WriteCellData;
-import com.alibaba.excel.util.MapUtils;
-import com.alibaba.excel.write.metadata.holder.WriteSheetHolder;
-import com.alibaba.excel.write.style.column.AbstractColumnWidthStyleStrategy;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.fesod.common.util.MapUtils;
+import org.apache.fesod.sheet.enums.CellDataTypeEnum;
+import org.apache.fesod.sheet.metadata.Head;
+import org.apache.fesod.sheet.metadata.data.WriteCellData;
+import org.apache.fesod.sheet.write.metadata.holder.WriteSheetHolder;
+import org.apache.fesod.sheet.write.style.column.AbstractColumnWidthStyleStrategy;
 import org.apache.poi.ss.usermodel.Cell;
 
 import java.nio.charset.StandardCharsets;
@@ -23,14 +23,13 @@ public class AutoColumnWidthStrategy extends AbstractColumnWidthStyleStrategy {
     private static final int MAX_COLUMN_WIDTH = 255;
     private final Map<Integer, Map<Integer, Integer>> cache = MapUtils.newHashMapWithExpectedSize(8);
 
-    public AutoColumnWidthStrategy() {
-    }
+    public AutoColumnWidthStrategy() {}
 
     @Override
     protected void setColumnWidth(WriteSheetHolder writeSheetHolder, List<WriteCellData<?>> cellDataList, Cell cell, Head head, Integer relativeRowIndex, Boolean isHead) {
         boolean needSetWidth = isHead || !CollectionUtils.isEmpty(cellDataList);
         if (needSetWidth) {
-            Map<Integer, Integer> maxColumnWidthMap = this.cache.computeIfAbsent(writeSheetHolder.getSheetNo(), (key) -> new HashMap<>(16));
+            Map<Integer, Integer> maxColumnWidthMap = this.cache.computeIfAbsent(writeSheetHolder.getSheetNo(), key -> HashMap. newHashMap(16));
             Integer columnWidth = this.dataLength(cellDataList, cell, isHead);
             if (columnWidth > 0) {
                 if (columnWidth > MAX_COLUMN_WIDTH) {
