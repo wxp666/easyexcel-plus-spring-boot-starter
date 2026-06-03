@@ -3,13 +3,16 @@ package com.wxp.excel;
 import com.wxp.excel.handler.ExcelArgumentResolvers;
 import com.wxp.excel.handler.ExcelReturnValueHandler;
 import com.wxp.excel.handler.ExcelWriteHandler;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.HandlerMethodReturnValueHandler;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,33 +21,55 @@ import java.util.List;
  * @apiNote 自动配置类
  */
 @AutoConfiguration
-public class EasyExcelPlusAutoConfiguration implements WebMvcConfigurer {
+@RequiredArgsConstructor
+public class EasyExcelPlusAutoConfiguration {
+
+    private final RequestMappingHandlerAdapter requestMappingHandlerAdapter;
 
     @Bean
     @ConditionalOnMissingBean
-    public ExcelWriteHandler excelWriteHandler() {
+    public ExcelWriteHandler excelWriteHandler(){
         return new ExcelWriteHandler();
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ExcelReturnValueHandler excelReturnValueHandler(ExcelWriteHandler excelWriteHandler) {
+    public ExcelReturnValueHandler excelReturnValueHandler(ExcelWriteHandler excelWriteHandler){
         return new ExcelReturnValueHandler(excelWriteHandler);
+    }
+
+    /**
+     * 追加处理器到springmvc
+     */
+    @PostConstruct
+    public void setReturnValueHandlers() {
+        List<HandlerMethodReturnValueHandler> returnValueHandlers = requestMappingHandlerAdapter
+                .getReturnValueHandlers();
+
+        List<HandlerMethodReturnValueHandler> newHandlers = new ArrayList<>();
+        newHandlers.add(excelReturnValueHandler(excelWriteHandler()));
+        if (returnValueHandlers != null){
+            newHandlers.addAll(returnValueHandlers);
+        }
+        requestMappingHandlerAdapter.setReturnValueHandlers(newHandlers);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ExcelArgumentResolvers excelArgumentResolvers() {
+    public ExcelArgumentResolvers excelArgumentResolvers(){
         return new ExcelArgumentResolvers();
     }
 
-    @Override
-    public void addReturnValueHandlers(List<HandlerMethodReturnValueHandler> handlers) {
-        handlers.add(0, excelReturnValueHandler(excelWriteHandler()));
+
+    @PostConstruct
+    public void setRequestExcelArgumentResolver() {
+        List<HandlerMethodArgumentResolver> argumentResolvers = requestMappingHandlerAdapter.getArgumentResolvers();
+        List<HandlerMethodArgumentResolver> resolverList = new ArrayList<>();
+        resolverList.add(excelArgumentResolvers());
+        if (argumentResolvers != null) {
+            resolverList.addAll(argumentResolvers);
+        }
+        requestMappingHandlerAdapter.setArgumentResolvers(resolverList);
     }
 
-    @Override
-    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
-        resolvers.add(excelArgumentResolvers());
-    }
 }

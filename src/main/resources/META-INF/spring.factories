@@ -1,3 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.wxp.excel.EasyExcelPlusAutoConfiguration,\
-  com.wxp.excel.utils.SpringUtil
